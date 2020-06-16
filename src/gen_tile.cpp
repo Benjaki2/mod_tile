@@ -93,7 +93,7 @@ struct xmlmapconfig {
     int minzoom;
     int maxzoom;
     int ok;
-    parameterize_function_ptr parameterize_function; 
+    parameterize_function_ptr parameterize_function;
     xmlmapconfig() :
         map(256,256) {}
 };
@@ -129,6 +129,15 @@ struct projectionconfig * get_projection(const char * srs) {
         prj->bound_y1 = 1400000;
         prj->aspect_x = 1;
         prj->aspect_y = 2;
+    } else if (strcmp(srs, "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs") == 0) {
+        syslog(LOG_DEBUG, "Using EPSG:4326 projection settings");
+        prj = (struct projectionconfig *)malloc(sizeof(struct projectionconfig));
+        prj->bound_x0 = -180;
+        prj->bound_y0 = -90;
+        prj->bound_x1 = 180;
+        prj->bound_y1 = 90;
+        prj->aspect_x = 1;
+        prj->aspect_y = 1;
     } else {
         syslog(LOG_WARNING, "Unknown projection string, using web mercator as never the less. %s", srs);
         prj = (struct projectionconfig *)malloc(sizeof(struct projectionconfig));
@@ -253,9 +262,9 @@ static enum protoCmd render(struct xmlmapconfig * map, int x, int y, int z, char
 
     mapnik::image_32 buf(render_size_tx*map->tilesize, render_size_ty*map->tilesize);
     try {
-        Map map_parameterized = map->map; 
-        if (map->parameterize_function) 
-            map->parameterize_function(map_parameterized, options); 
+        Map map_parameterized = map->map;
+        if (map->parameterize_function)
+            map->parameterize_function(map_parameterized, options);
         mapnik::agg_renderer<mapnik::image_32> ren(map_parameterized,buf,map->scale);
         ren.apply();
     } catch (std::exception const& ex) {
