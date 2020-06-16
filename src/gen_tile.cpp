@@ -136,7 +136,7 @@ struct projectionconfig * get_projection(const char * srs) {
         prj->bound_y0 = -90;
         prj->bound_x1 = 180;
         prj->bound_y1 = 90;
-        prj->aspect_x = 1;
+        prj->aspect_x = 2;
         prj->aspect_y = 1;
     } else {
         syslog(LOG_WARNING, "Unknown projection string, using web mercator as never the less. %s", srs);
